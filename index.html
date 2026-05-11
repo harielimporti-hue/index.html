@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Criador de Lote — Drive</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -36,6 +37,24 @@
     font-size: 14px; outline: none; appearance: none;
   }
   select option { background: #1e293b; }
+  .btn-google {
+    width: 100%; padding: 13px;
+    background: #fff; border: none; border-radius: 12px;
+    color: #1f2937; font-size: 14px; font-weight: 600;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px;
+    margin-bottom: 24px; transition: opacity .2s;
+  }
+  .btn-google:hover { opacity: .9; }
+  .btn-google img { width: 20px; }
+  .user-badge {
+    display: flex; align-items: center; gap: 10px;
+    background: rgba(74,222,128,0.08);
+    border: 1px solid rgba(74,222,128,0.2);
+    border-radius: 10px; padding: 10px 14px; margin-bottom: 24px;
+  }
+  .user-badge img { width: 32px; border-radius: 50%; }
+  .user-badge span { color: #4ade80; font-size: 13px; }
+  .user-badge .logout { margin-left: auto; color: #64748b; font-size: 12px; cursor: pointer; }
   .btn-buscar {
     padding: 12px 16px; border-radius: 10px;
     background: rgba(99,102,241,0.2);
@@ -52,10 +71,7 @@
   .preview p { color: #818cf8; font-size: 12px; font-weight: 600; margin-bottom: 8px; }
   .preview .path { color: #c7d2fe; font-size: 13px; margin-bottom: 10px; }
   .tags { display: flex; flex-wrap: wrap; gap: 6px; }
-  .tag {
-    background: rgba(99,102,241,0.15); border-radius: 6px;
-    padding: 4px 10px; color: #a5b4fc; font-size: 12px;
-  }
+  .tag { background: rgba(99,102,241,0.15); border-radius: 6px; padding: 4px 10px; color: #a5b4fc; font-size: 12px; }
   .btn-criar {
     width: 100%; padding: 14px;
     background: linear-gradient(135deg, #6366f1, #8b5cf6);
@@ -65,76 +81,53 @@
   }
   .btn-criar:disabled { background: rgba(255,255,255,0.06); color: #475569; cursor: not-allowed; }
   .log { margin-top: 20px; display: flex; flex-direction: column; gap: 6px; }
-  .log-item {
-    display: flex; align-items: center; gap: 8px;
-    background: rgba(255,255,255,0.03);
-    border-radius: 8px; padding: 8px 12px;
-    font-size: 13px;
-  }
-  /* done */
+  .log-item { display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.03); border-radius: 8px; padding: 8px 12px; font-size: 13px; }
   .done { text-align: center; }
   .done .big { font-size: 52px; margin-bottom: 8px; }
   .done h2 { color: #4ade80; font-size: 18px; margin-bottom: 4px; }
   .done .sub { color: #64748b; font-size: 13px; margin-bottom: 24px; }
   .done .sub strong { color: #94a3b8; }
   .created-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 24px; text-align: left; }
-  .created-item {
-    background: rgba(74,222,128,0.08);
-    border: 1px solid rgba(74,222,128,0.2);
-    border-radius: 8px; padding: 10px 14px;
-    color: #4ade80; font-size: 13px;
-  }
-  .btn-link {
-    display: block; margin-bottom: 12px; padding: 13px;
-    background: linear-gradient(135deg, #6366f1, #8b5cf6);
-    border-radius: 10px; color: #fff; text-decoration: none;
-    font-size: 14px; font-weight: 600; text-align: center;
-  }
-  .btn-reset {
-    width: 100%; padding: 12px;
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 10px; color: #94a3b8;
-    font-size: 14px; cursor: pointer;
-  }
-  /* error */
+  .created-item { background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.2); border-radius: 8px; padding: 10px 14px; color: #4ade80; font-size: 13px; }
+  .btn-link { display: block; margin-bottom: 12px; padding: 13px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border-radius: 10px; color: #fff; text-decoration: none; font-size: 14px; font-weight: 600; text-align: center; }
+  .btn-reset { width: 100%; padding: 12px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #94a3b8; font-size: 14px; cursor: pointer; }
   .error-box { text-align: center; }
   .error-box .big { font-size: 48px; margin-bottom: 8px; }
   .error-box h3 { color: #f87171; font-size: 16px; margin-bottom: 8px; }
   .error-box p { color: #64748b; font-size: 13px; margin-bottom: 20px; }
-  #apiKeySection {
-    background: rgba(234,179,8,0.08);
-    border: 1px solid rgba(234,179,8,0.25);
-    border-radius: 12px; padding: 16px; margin-bottom: 24px;
-  }
-  #apiKeySection p { color: #fbbf24; font-size: 12px; margin-bottom: 8px; font-weight: 600; }
-  #apiKeySection small { color: #92400e; font-size: 11px; display: block; margin-top: 6px; }
-  #apiKey { font-family: monospace; font-size: 13px; }
 </style>
 </head>
 <body>
-<div class="card" id="app">
+<div class="card">
 
-  <!-- Header -->
   <div class="header">
     <div class="icon">📁</div>
     <h1>Criador de Lote</h1>
     <p>Google Drive · Estrutura automática de subpastas</p>
   </div>
 
-  <!-- API Key -->
-  <div id="apiKeySection">
-    <p>🔑 ANTHROPIC API KEY</p>
-    <input type="password" id="apiKey" placeholder="sk-ant-..." style="width:100%;padding:10px 12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:8px;color:#f1f5f9;font-size:13px;outline:none;font-family:monospace;">
-    <small>Necessária para criar pastas via API. Não é salva em nenhum lugar.</small>
+  <!-- Login -->
+  <div id="loginSection">
+    <p style="color:#64748b;font-size:13px;text-align:center;margin-bottom:16px;">Faça login com o Google para criar pastas no Drive</p>
+    <button class="btn-google" onclick="loginGoogle()">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+      Entrar com Google
+    </button>
+  </div>
+
+  <!-- User badge -->
+  <div id="userBadge" style="display:none" class="user-badge">
+    <img id="userAvatar" src="" alt="">
+    <span id="userName"></span>
+    <span class="logout" onclick="logout()">Sair</span>
   </div>
 
   <!-- Form -->
-  <div id="formSection">
+  <div id="formSection" style="display:none">
     <div class="field">
       <label>📂 PASTA DO CD</label>
       <div class="row">
-        <select id="cdSelect">
+        <select id="cdSelect" onchange="atualizarPreview()">
           <option value="">Selecione uma pasta...</option>
         </select>
         <button class="btn-buscar" id="btnBuscar" onclick="buscarPastas()">🔄 Buscar</button>
@@ -158,7 +151,6 @@
     </div>
 
     <button class="btn-criar" id="btnCriar" onclick="criar()" disabled>✨ Criar Pastas do Lote</button>
-
     <div class="log" id="log"></div>
   </div>
 
@@ -182,59 +174,131 @@
     <div class="big">⚠️</div>
     <h3>Ocorreu um erro</h3>
     <p id="errorMsg"></p>
-    <button class="btn-reset" onclick="reset()">↩ Tentar novamente</button>
+    <button class="btn-reset" onclick="resetError()">↩ Tentar novamente</button>
   </div>
 
 </div>
 
 <script>
-const ROOT_ID = "1Sd64Eoqos3LDG0CTcJ_chPweiD2W6ozo";
-const SUBFOLDERS = ["1.Planilha", "2.Pagamento", "3.Nota fiscal", "4.Evidências"];
+const CLIENT_ID = '660933415554-2as928laouu0lfj5nsgi9qa2h30h1vup.apps.googleusercontent.com';
+const SCOPES = 'https://www.googleapis.com/auth/drive';
+const ROOT_ID = '1Sd64Eoqos3LDG0CTcJ_chPweiD2W6ozo';
+const SUBFOLDERS = ['1.Planilha', '2.Pagamento', '3.Nota fiscal', '4.Evidências'];
 
-// Pastas já conhecidas (cache)
 const KNOWN_FOLDERS = [
-  { id: "16zBWgLFtBmvsh8CCT63o6N3l6sZB0dAi", name: "BRBA01" },
-  { id: "1O052LfTbw0gC42Q4Kn67s5LdvovGA9Pc", name: "BRBA02" },
-  { id: "1JmFwrQ0V2kPA2yRRO4WbT3iypynrv2wM", name: "BRDF01" },
-  { id: "1d2jF3E06VOOS8wc20kBQODJeS5KhRZTA", name: "BRMG01" },
-  { id: "1eofdz3rtjQiqXA8wFVyr5LH-UQgbqWvH", name: "BRMG02" },
-  { id: "1voz9lr7PgB418BBArj58aexGR_aENraY",  name: "BRMG03" },
-  { id: "1ew2lMPt44ZkECQZhePC8tLnrVdTeBRlN", name: "BRMG04" },
-  { id: "1X-8Fi1Viicu1efdGP0kUV_0BCOflPYjX",  name: "BRPE01" },
-  { id: "18k6CWeD3Lao2CDvKQebGYypsPlUA0w6T",  name: "BRPR01" },
-  { id: "1LlUraxxsVNANIW3vWF8IQNhcgqPsovX2",  name: "BRRC01" },
-  { id: "14q64wEqo-CsqAr9fD3xr95A_VtWlr8Rv",  name: "BRRC02" },
-  { id: "15ON1-P_eKbwok-E7aHtuuIV5bpYETlN_",  name: "BRRC03" },
-  { id: "1950jE81Bra3XVJ5_C4Z6tONu9hNfA4QY",  name: "BRRJ02" },
-  { id: "1J7Zxr1wLmwvc5jTOaGNDhgfoSe8pazpp",  name: "BRRS01" },
-  { id: "1xxBIwNAor5p4Tr1sVjEXiFI1BuRt1ilx",  name: "BRSC02" },
-  { id: "1rzne8XU2fn0WxrXdyO6bkrf9gqReh-ga",  name: "BRSP02" },
-  { id: "1Lnt3K8134b3oVOXgc8AP2QwsgslbbxR5",  name: "BRSP04" },
-  { id: "1KMhgoLz1pWxIL-vYCuQpqHfUHp4JKhhc",  name: "BRSP06" },
-  { id: "1LS6o60Yf-4krwONO8s-1XJcLSUdrfu3j",  name: "BRSP09" },
-  { id: "1Eyizhp72h-0aAr1JuncG_QaKJfOu_hzQ",  name: "BRSP10" },
-  { id: "18Ml-vDqz6G8nt-ZsEeHpUa2uo9tzDmKs",  name: "BRSP11" },
-  { id: "1d5H_UOcnZQt__FzCuHTdV2sZZTFVMcN2",  name: "BRSP14" },
-  { id: "1dD7qG-kLaiW1G6Huka4QzrnTb8Prs9ys",  name: "BRSP15" },
-  { id: "1iVVj86IhAKfgiFLmaOLsSixXBFWrFDww",  name: "BRSP18" },
-  { id: "12_ffu6aqFttwl_1jPVwP1VtHU72uetCV",  name: "BRSP19" },
-  { id: "1U-8CP-oBIEgbUygEI153fWSa3pXPfZ6J",  name: "BRSP24" },
-  { id: "17rvL-BR4qfEoo4p90L6x3V13HH3OteLU",  name: "BRSP25" },
-  { id: "1aq0Rvfar1bNMgYNe6L17SDK0Wfvmr-Sh",  name: "BRSP26" },
-  { id: "1eBf3ooVqdj-FCVC4-VWK_3NYrr847pVz",  name: "Catalogação SP02" },
-].sort((a, b) => a.name.localeCompare(b.name));
+  { id: '16zBWgLFtBmvsh8CCT63o6N3l6sZB0dAi', name: 'BRBA01' },
+  { id: '1O052LfTbw0gC42Q4Kn67s5LdvovGA9Pc', name: 'BRBA02' },
+  { id: '1JmFwrQ0V2kPA2yRRO4WbT3iypynrv2wM', name: 'BRDF01' },
+  { id: '1d2jF3E06VOOS8wc20kBQODJeS5KhRZTA', name: 'BRMG01' },
+  { id: '1eofdz3rtjQiqXA8wFVyr5LH-UQgbqWvH', name: 'BRMG02' },
+  { id: '1voz9lr7PgB418BBArj58aexGR_aENraY',  name: 'BRMG03' },
+  { id: '1ew2lMPt44ZkECQZhePC8tLnrVdTeBRlN', name: 'BRMG04' },
+  { id: '1X-8Fi1Viicu1efdGP0kUV_0BCOflPYjX',  name: 'BRPE01' },
+  { id: '18k6CWeD3Lao2CDvKQebGYypsPlUA0w6T',  name: 'BRPR01' },
+  { id: '1LlUraxxsVNANIW3vWF8IQNhcgqPsovX2',  name: 'BRRC01' },
+  { id: '14q64wEqo-CsqAr9fD3xr95A_VtWlr8Rv',  name: 'BRRC02' },
+  { id: '15ON1-P_eKbwok-E7aHtuuIV5bpYETlN_',  name: 'BRRC03' },
+  { id: '1950jE81Bra3XVJ5_C4Z6tONu9hNfA4QY',  name: 'BRRJ02' },
+  { id: '1J7Zxr1wLmwvc5jTOaGNDhgfoSe8pazpp',  name: 'BRRS01' },
+  { id: '1xxBIwNAor5p4Tr1sVjEXiFI1BuRt1ilx',  name: 'BRSC02' },
+  { id: '1rzne8XU2fn0WxrXdyO6bkrf9gqReh-ga',  name: 'BRSP02' },
+  { id: '1Lnt3K8134b3oVOXgc8AP2QwsgslbbxR5',  name: 'BRSP04' },
+  { id: '1KMhgoLz1pWxIL-vYCuQpqHfUHp4JKhhc',  name: 'BRSP06' },
+  { id: '1LS6o60Yf-4krwONO8s-1XJcLSUdrfu3j',  name: 'BRSP09' },
+  { id: '1Eyizhp72h-0aAr1JuncG_QaKJfOu_hzQ',  name: 'BRSP10' },
+  { id: '18Ml-vDqz6G8nt-ZsEeHpUa2uo9tzDmKs',  name: 'BRSP11' },
+  { id: '1d5H_UOcnZQt__FzCuHTdV2sZZTFVMcN2',  name: 'BRSP14' },
+  { id: '1dD7qG-kLaiW1G6Huka4QzrnTb8Prs9ys',  name: 'BRSP15' },
+  { id: '1iVVj86IhAKfgiFLmaOLsSixXBFWrFDww',  name: 'BRSP18' },
+  { id: '12_ffu6aqFttwl_1jPVwP1VtHU72uetCV',  name: 'BRSP19' },
+  { id: '1U-8CP-oBIEgbUygEI153fWSa3pXPfZ6J',  name: 'BRSP24' },
+  { id: '17rvL-BR4qfEoo4p90L6x3V13HH3OteLU',  name: 'BRSP25' },
+  { id: '1aq0Rvfar1bNMgYNe6L17SDK0Wfvmr-Sh',  name: 'BRSP26' },
+  { id: '1eBf3ooVqdj-FCVC4-VWK_3NYrr847pVz',  name: 'Catalogação SP02' },
+].sort((a,b) => a.name.localeCompare(b.name));
 
-// Populate select on load
+let accessToken = null;
+let tokenClient = null;
+
 window.onload = () => {
-  const sel = document.getElementById('cdSelect');
-  KNOWN_FOLDERS.forEach(f => {
-    const opt = document.createElement('option');
-    opt.value = f.id; opt.textContent = f.name;
-    sel.appendChild(opt);
+  populateSelect(KNOWN_FOLDERS);
+  google.accounts.id.initialize({ client_id: CLIENT_ID, callback: () => {} });
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: SCOPES,
+    callback: (resp) => {
+      if (resp.error) { alert('Erro no login: ' + resp.error); return; }
+      accessToken = resp.access_token;
+      fetchUserInfo();
+    }
   });
 };
 
-function getApiKey() { return document.getElementById('apiKey').value.trim(); }
+function loginGoogle() {
+  tokenClient.requestAccessToken({ prompt: 'consent' });
+}
+
+function logout() {
+  accessToken = null;
+  document.getElementById('loginSection').style.display = 'block';
+  document.getElementById('userBadge').style.display = 'none';
+  document.getElementById('formSection').style.display = 'none';
+}
+
+async function fetchUserInfo() {
+  const r = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+    headers: { Authorization: 'Bearer ' + accessToken }
+  });
+  const u = await r.json();
+  document.getElementById('userAvatar').src = u.picture || '';
+  document.getElementById('userName').textContent = '✅ ' + (u.name || u.email);
+  document.getElementById('loginSection').style.display = 'none';
+  document.getElementById('userBadge').style.display = 'flex';
+  document.getElementById('formSection').style.display = 'block';
+}
+
+function populateSelect(folders) {
+  const sel = document.getElementById('cdSelect');
+  sel.innerHTML = '<option value="">Selecione uma pasta...</option>';
+  folders.forEach(f => {
+    const o = document.createElement('option');
+    o.value = f.id; o.textContent = f.name;
+    sel.appendChild(o);
+  });
+}
+
+async function buscarPastas() {
+  if (!accessToken) { alert('Faça login primeiro.'); return; }
+  const btn = document.getElementById('btnBuscar');
+  btn.disabled = true; btn.textContent = '⏳';
+  try {
+    const r = await fetch(
+      `https://www.googleapis.com/drive/v3/files?q=mimeType%3D'application%2Fvnd.google-apps.folder'+and+%27${ROOT_ID}%27+in+parents+and+trashed%3Dfalse&fields=files(id,name)&pageSize=50`,
+      { headers: { Authorization: 'Bearer ' + accessToken } }
+    );
+    const data = await r.json();
+    if (data.files && data.files.length > 0) {
+      populateSelect(data.files.sort((a,b) => a.name.localeCompare(b.name)));
+    }
+  } catch(e) { alert('Erro ao buscar: ' + e.message); }
+  btn.disabled = false; btn.textContent = '🔄 Buscar';
+}
+
+function atualizarPreview() {
+  const cd = document.getElementById('cdSelect');
+  const lote = document.getElementById('loteInput').value.trim();
+  const preview = document.getElementById('preview');
+  const btn = document.getElementById('btnCriar');
+  if (cd.value && lote) {
+    preview.style.display = 'block';
+    document.getElementById('previewPath').innerHTML =
+      `📂 ${cd.options[cd.selectedIndex].text} → <strong>Lote ${lote}</strong>`;
+    btn.disabled = false;
+  } else {
+    preview.style.display = 'none';
+    btn.disabled = true;
+  }
+}
 
 function addLog(icon, msg, color = '#a3e635') {
   const log = document.getElementById('log');
@@ -246,85 +310,19 @@ function addLog(icon, msg, color = '#a3e635') {
   el.scrollIntoView({ behavior: 'smooth' });
 }
 
-function atualizarPreview() {
-  const cd = document.getElementById('cdSelect');
-  const lote = document.getElementById('loteInput').value.trim();
-  const preview = document.getElementById('preview');
-  const btn = document.getElementById('btnCriar');
-  const cdName = cd.options[cd.selectedIndex]?.text;
-  if (cd.value && lote) {
-    preview.style.display = 'block';
-    document.getElementById('previewPath').innerHTML =
-      `📂 ${cdName} → <strong>Lote ${lote}</strong>`;
-    btn.disabled = false;
-  } else {
-    preview.style.display = 'none';
-    btn.disabled = true;
-  }
-}
-
-async function buscarPastas() {
-  const key = getApiKey();
-  if (!key) { alert('Informe sua API Key primeiro.'); return; }
-  const btn = document.getElementById('btnBuscar');
-  btn.disabled = true; btn.textContent = '⏳';
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514', max_tokens: 1000,
-        system: `Use search_files with query: mimeType = 'application/vnd.google-apps.folder' and parentId = '${ROOT_ID}'. Return ONLY a JSON array: [{"id":"...","name":"..."}]`,
-        messages: [{ role: 'user', content: 'List subfolders.' }],
-        mcp_servers: [{ type: 'url', url: 'https://drivemcp.googleapis.com/mcp/v1', name: 'gdrive' }]
-      })
-    });
-    const json = await res.json();
-    const folders = [];
-    for (const block of json.content || []) {
-      if (block.type === 'mcp_tool_result') {
-        try {
-          const parsed = JSON.parse(block.content?.[0]?.text || '{}');
-          (parsed.files || []).forEach(f => { if (f.id) folders.push({ id: f.id, name: f.title || f.name }); });
-        } catch {}
-      }
-    }
-    if (folders.length > 0) {
-      const sel = document.getElementById('cdSelect');
-      sel.innerHTML = '<option value="">Selecione uma pasta...</option>';
-      folders.sort((a,b) => a.name.localeCompare(b.name)).forEach(f => {
-        const opt = document.createElement('option');
-        opt.value = f.id; opt.textContent = f.name;
-        sel.appendChild(opt);
-      });
-    }
-  } catch(e) { alert('Erro ao buscar: ' + e.message); }
-  btn.disabled = false; btn.textContent = '🔄 Buscar';
-}
-
-async function createFolder(title, parentId, apiKey) {
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
+async function createFolder(name, parentId) {
+  const r = await fetch('https://www.googleapis.com/drive/v3/files', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514', max_tokens: 500,
-      system: 'You are a Google Drive assistant. Create a folder using create_file MCP tool. Reply with only the created folder id.',
-      messages: [{ role: 'user', content: `Create folder named "${title}" with parentId "${parentId}". Use create_file with mimeType application/vnd.google-apps.folder.` }],
-      mcp_servers: [{ type: 'url', url: 'https://drivemcp.googleapis.com/mcp/v1', name: 'gdrive' }]
-    })
+    headers: { Authorization: 'Bearer ' + accessToken, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name, mimeType: 'application/vnd.google-apps.folder', parents: [parentId] })
   });
-  const json = await res.json();
-  for (const block of json.content || []) {
-    if (block.type === 'mcp_tool_result') {
-      try { const p = JSON.parse(block.content?.[0]?.text || '{}'); if (p.id) return p.id; } catch {}
-    }
-  }
-  return null;
+  const data = await r.json();
+  if (!data.id) throw new Error('Falha ao criar "' + name + '"');
+  return data.id;
 }
 
 async function criar() {
-  const key = getApiKey();
-  if (!key) { alert('Informe sua API Key primeiro.'); return; }
+  if (!accessToken) { alert('Faça login primeiro.'); return; }
   const cdEl = document.getElementById('cdSelect');
   const lote = document.getElementById('loteInput').value.trim();
   const cdId = cdEl.value;
@@ -336,13 +334,12 @@ async function criar() {
 
   try {
     addLog('📁', `Criando "Lote ${lote}"...`, '#60a5fa');
-    const loteId = await createFolder(`Lote ${lote}`, cdId, key);
-    if (!loteId) throw new Error('Não foi possível criar a pasta do lote.');
+    const loteId = await createFolder(`Lote ${lote}`, cdId);
     addLog('✅', `"Lote ${lote}" criada!`);
 
     for (const sub of SUBFOLDERS) {
       addLog('📂', `Criando "${sub}"...`, '#60a5fa');
-      await createFolder(sub, loteId, key);
+      await createFolder(sub, loteId);
       addLog('✅', `"${sub}" criada!`);
     }
 
@@ -350,9 +347,9 @@ async function criar() {
     document.getElementById('doneSection').style.display = 'block';
     document.getElementById('doneDesc').innerHTML =
       `<strong>Lote ${lote}</strong> em <strong>${cdName}</strong>`;
-    document.getElementById('driveLink').href =
-      `https://drive.google.com/drive/folders/${loteId}`;
-    document.getElementById('driveLink').textContent = `🔗 Abrir Lote ${lote} no Drive`;
+    const driveLink = document.getElementById('driveLink');
+    driveLink.href = `https://drive.google.com/drive/folders/${loteId}`;
+    driveLink.textContent = `🔗 Abrir Lote ${lote} no Drive`;
 
   } catch(e) {
     document.getElementById('formSection').style.display = 'none';
@@ -364,11 +361,16 @@ async function criar() {
 function reset() {
   document.getElementById('formSection').style.display = 'block';
   document.getElementById('doneSection').style.display = 'none';
-  document.getElementById('errorSection').style.display = 'none';
   document.getElementById('loteInput').value = '';
   document.getElementById('preview').style.display = 'none';
   document.getElementById('btnCriar').disabled = true;
   document.getElementById('log').innerHTML = '';
+}
+
+function resetError() {
+  document.getElementById('errorSection').style.display = 'none';
+  document.getElementById('formSection').style.display = 'block';
+  document.getElementById('btnCriar').disabled = false;
 }
 </script>
 </body>
