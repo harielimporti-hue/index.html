@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Criador de Lote — Drive</title>
+<title>Criador de Pasta de Lote — Drive</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -102,7 +102,7 @@
 
   <div class="header">
     <div class="icon">📁</div>
-    <h1>Criador de Lote</h1>
+    <h1>Criador de Pasta de Lote</h1>
     <p>Google Drive · Estrutura automática de subpastas</p>
   </div>
 
@@ -220,8 +220,11 @@ const KNOWN_FOLDERS = [
 let accessToken = null;
 let tokenClient = null;
 
-window.onload = () => {
-  populateSelect(KNOWN_FOLDERS);
+function initGoogle() {
+  if (typeof google === 'undefined' || !google.accounts) {
+    setTimeout(initGoogle, 300);
+    return;
+  }
   google.accounts.id.initialize({ client_id: CLIENT_ID, callback: () => {} });
   tokenClient = google.accounts.oauth2.initTokenClient({
     client_id: CLIENT_ID,
@@ -232,6 +235,11 @@ window.onload = () => {
       fetchUserInfo();
     }
   });
+}
+
+window.onload = () => {
+  populateSelect(KNOWN_FOLDERS);
+  initGoogle();
 };
 
 function loginGoogle() {
